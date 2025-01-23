@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Task List</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; padding: 20px; }
         .task-container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        .task { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ddd; }
+        .task { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; }
+        .completed { text-decoration: line-through; color: gray; }
         .timer { font-weight: bold; color: red; }
-        button { cursor: pointer; padding: 5px 10px; }
+        button { cursor: pointer; padding: 5px 10px; margin: 5px; border: none; background: #4CAF50; color: white; border-radius: 5px; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -35,17 +37,22 @@
             tasks.forEach((task, index) => {
                 const taskDiv = document.createElement("div");
                 taskDiv.classList.add("task");
+                if (task.completed) taskDiv.classList.add("completed");
 
                 let remainingTime = task.remaining_time;
                 if (task.started) {
                     let elapsed = Math.floor((Date.now() - task.start_time) / 1000);
                     remainingTime = Math.max(0, 1500 - elapsed);
+                    if (remainingTime === 0) {
+                        task.started = false;
+                        alert(`Time's up for "${task.name}"!`);
+                    }
                 }
 
                 taskDiv.innerHTML = `
                     <span>${task.name}</span>
                     <span class="timer">${formatTime(remainingTime)}</span>
-                    <button onclick="startTask(${index})">▶ Start</button>
+                    <button onclick="startTask(${index})" ${task.started ? "disabled" : ""}>▶ Start</button>
                     <button onclick="completeTask(${index})">✔ Done</button>
                 `;
 
